@@ -272,9 +272,9 @@
   <script>
     // ===== 設定 =====
     // 統計 GET API(公開唯讀,不含 /u/1/ 的標準網址)
-    // @HEAD 部署:永遠服務最新 HEAD 程式碼(clasp push 後即時生效)。
-    // 舊的 @34 版本化部署是凍結的,勿再使用。
-    var API_BASE = "https://script.google.com/macros/s/AKfycbwpjTTMUtyXPJbwfDz-T3a3Mun--29y1rUwGRfG378/exec";
+    // Apps Script 統計 API 部署(@39)。注意:版本化部署是凍結的,
+    // 之後程式碼有更新需重新發布此版本(或改用 @HEAD)才會反映。
+    var API_BASE = "https://script.google.com/macros/s/AKfycbwOJY0pkh927RBaNUySRXP-h_jqqX87BX3d9zIsJLo63gjeazYnsOEnlGmaXzATIuC8/exec";
     var JSONP_TIMEOUT = 12000;
 
     var els = {
