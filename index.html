@@ -272,7 +272,9 @@
   <script>
     // ===== 設定 =====
     // 統計 GET API(公開唯讀,不含 /u/1/ 的標準網址)
-    var API_BASE = "https://script.google.com/macros/s/AKfycbziLnjHkUEH1Tn1Mz92ioZm1g5_K1v2HxoZ3H2jboX5QXwYvmIKIpMVBu092-QayqGz/exec";
+    // @HEAD 部署:永遠服務最新 HEAD 程式碼(clasp push 後即時生效)。
+    // 舊的 @34 版本化部署是凍結的,勿再使用。
+    var API_BASE = "https://script.google.com/macros/s/AKfycbwpjTTMUtyXPJbwfDz-T3a3Mun--29y1rUwGRfG378/exec";
     var JSONP_TIMEOUT = 12000;
 
     var els = {
@@ -370,6 +372,18 @@
         p(now.getHours()) + ":" + p(now.getMinutes()) + ":" + p(now.getSeconds());
     }
 
+    // 本機快取鍵(依查詢視窗區分)
+    function cacheKeyFor(params) {
+      return "stats-cache:" + (params.startTime || "") + "|" + (params.endTime || "");
+    }
+    function readCache(key) {
+      try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
+      catch (e) { return null; }
+    }
+    function writeCache(key, data) {
+      try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) {}
+    }
+
     // ===== JSONP 讀取(繞過 GAS 的 CORS 限制)=====
     var seq = 0;
     function loadStats() {
@@ -382,12 +396,19 @@
         return encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
       }).join("&");
 
-      setLoading();
+      // 先用本機快取「秒顯示」上次結果,沒有才顯示載入動畫;背景再抓最新覆蓋。
+      var ck = cacheKeyFor(params);
+      var cached = readCache(ck);
+      if (cached) {
+        render(cached);
+      } else {
+        setLoading();
+      }
 
       var script = document.createElement("script");
       var timer = setTimeout(function () {
         cleanup();
-        showError("連線逾時,請稍後再試");
+        if (!cached) showError("連線逾時,請稍後再試");
       }, JSONP_TIMEOUT);
 
       function cleanup() {
@@ -401,14 +422,16 @@
         cleanup();
         if (res && res.ok && res.data) {
           render(res.data);
-        } else {
+          writeCache(ck, res.data);
+        } else if (!cached) {
+          // 有舊資料時,不用錯誤訊息蓋掉已顯示的名單
           showError((res && res.error) ? res.error : "讀取失敗");
         }
       };
 
       script.onerror = function () {
         cleanup();
-        showError("無法連線到伺服器");
+        if (!cached) showError("無法連線到伺服器");
       };
 
       els.refresh.disabled = true;
