@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#e8722c" />
+  <title>🏀 週三打球報名</title>
+  <style>
+    :root {
+      --ball: #e8722c;
+      --ball-dark: #c9581a;
+      --line: #f4e9dd;
+      --court: #b5651d;
+      --court-dark: #8a4a13;
+      --ink: #1c140d;
+      --paper: #fff6ec;
+      --shadow: rgba(60, 30, 5, .25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 50% -10%, #f6a04b 0%, var(--court) 55%, var(--court-dark) 100%);
+      min-height: 100%;
+      display: flex;
+      justify-content: center;
+      padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 12px);
+    }
+
+    /* 手機寬度為主,桌機置中收斂 */
+    .app {
+      width: 100%;
+      max-width: 440px;
+      margin-top: 14px;
+    }
+
+    /* ===== 計分板標題 ===== */
+    .scoreboard {
+      position: relative;
+      text-align: center;
+      color: var(--line);
+      padding: 22px 16px 60px;
+      overflow: hidden;
+      border-radius: 22px 22px 0 0;
+      background:
+        linear-gradient(180deg, #2a1c10 0%, #17100a 100%);
+      box-shadow: 0 8px 22px var(--shadow);
+    }
+    /* 半場弧線 */
+    .scoreboard::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -70px;
+      width: 150px;
+      height: 150px;
+      transform: translateX(-50%);
+      border: 3px solid rgba(244, 233, 221, .28);
+      border-radius: 50%;
+    }
+    .scoreboard::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 100%;
+      height: 3px;
+      transform: translateX(-50%);
+      background: rgba(244, 233, 221, .28);
+    }
+
+    .ball {
+      font-size: 42px;
+      line-height: 1;
+      display: inline-block;
+      animation: dribble 1.4s ease-in-out infinite;
+    }
+    @keyframes dribble {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(12deg); }
+    }
+
+    .scoreboard h1 {
+      font-size: 22px;
+      letter-spacing: 2px;
+      margin-top: 6px;
+      font-weight: 800;
+    }
+    .clock {
+      margin-top: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #ffd9b0;
+      font-variant-numeric: tabular-nums;
+    }
+    .window {
+      margin-top: 4px;
+      font-size: 12px;
+      letter-spacing: .5px;
+      color: rgba(244, 233, 221, .7);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ===== 總人數卡 ===== */
+    .total-card {
+      position: relative;
+      margin: -34px 16px 0;
+      background: var(--paper);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 10px 26px var(--shadow);
+      border: 2px solid #fff;
+      z-index: 2;
+    }
+    .total-label { font-size: 15px; color: #7a5a3a; font-weight: 700; }
+    .total-number {
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--ball);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 2px 0 #fff, 0 3px 6px rgba(232,114,44,.3);
+    }
+    .total-unit { font-size: 16px; color: #7a5a3a; font-weight: 700; }
+
+    /* ===== 名單 ===== */
+    .roster {
+      list-style: none;
+      background: var(--paper);
+      margin: 12px 16px 0;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 10px 26px var(--shadow);
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0e2d0;
+      animation: pop .35s ease both;
+    }
+    .row:last-child { border-bottom: none; }
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .jersey {
+      flex: 0 0 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 16px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 35% 30%, #ff9a4d, var(--ball) 60%, var(--ball-dark));
+      position: relative;
+    }
+    /* 籃球紋路 */
+    .jersey::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background:
+        linear-gradient(90deg, transparent 47%, rgba(0,0,0,.28) 48%, rgba(0,0,0,.28) 52%, transparent 53%),
+        radial-gradient(circle at 50% 120%, transparent 68%, rgba(0,0,0,.28) 69%, rgba(0,0,0,.28) 72%, transparent 73%),
+        radial-gradient(circle at 50% -20%, transparent 68%, rgba(0,0,0,.28) 69%, rgba(0,0,0,.28) 72%, transparent 73%);
+      opacity: .55;
+    }
+    .jersey span { position: relative; z-index: 1; }
+
+    .name { flex: 1; font-size: 16px; font-weight: 700; color: var(--ink); word-break: break-all; }
+
+    .count {
+      flex: 0 0 auto;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ball-dark);
+      background: #ffe6cf;
+      border-radius: 999px;
+      padding: 5px 12px;
+      white-space: nowrap;
+    }
+    .count small { font-weight: 600; opacity: .8; }
+
+    /* ===== 狀態(載入 / 空 / 錯誤) ===== */
+    .state {
+      margin: 12px 16px 0;
+      text-align: center;
+      color: var(--line);
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 24px 12px;
+    }
+    .state .big { font-size: 40px; display: block; margin-bottom: 8px; }
+    .loader {
+      width: 40px; height: 40px; margin: 0 auto 10px;
+      font-size: 34px;
+      animation: dribble 0.7s ease-in-out infinite;
+    }
+    .hidden { display: none !important; }
+
+    /* ===== 重新整理 ===== */
+    .refresh {
+      display: block;
+      width: calc(100% - 32px);
+      margin: 18px 16px 6px;
+      padding: 15px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffb15e, var(--ball));
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      box-shadow: 0 8px 18px rgba(200, 90, 20, .4);
+      cursor: pointer;
+      transition: transform .08s ease, filter .15s ease;
+    }
+    .refresh:active { transform: scale(.97); filter: brightness(.95); }
+    .refresh:disabled { opacity: .6; }
+
+    footer {
+      text-align: center;
+      color: rgba(244, 233, 221, .65);
+      font-size: 11px;
+      margin-top: 14px;
+      letter-spacing: .5px;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="scoreboard">
+      <div class="ball">🏀</div>
+      <h1>週三打球報名</h1>
+      <div class="clock" id="clock">–</div>
+      <div class="window" id="window">報名時段載入中…</div>
+    </header>
+
+    <section class="total-card" id="totalCard">
+      <span class="total-label">目前報名</span>
+      <span class="total-number" id="total">–</span>
+      <span class="total-unit">人</span>
+    </section>
+
+    <ul class="roster hidden" id="roster"></ul>
+
+    <div class="state" id="state">
+      <div class="loader">🏀</div>
+      正在讀取報名名單…
+    </div>
+
+    <button class="refresh" id="refresh">🔄 重新整理</button>
+    <footer>資料來源：LINE 籃球小幫手 · 只計算點擊報名</footer>
+  </main>
+
+  <script>
+    // ===== 設定 =====
+    // 統計 GET API(公開唯讀,不含 /u/1/ 的標準網址)
+    var API_BASE = "https://script.google.com/macros/s/AKfycbziLnjHkUEH1Tn1Mz92ioZm1g5_K1v2HxoZ3H2jboX5QXwYvmIKIpMVBu092-QayqGz/exec";
+    var JSONP_TIMEOUT = 12000;
+
+    var els = {
+      total: document.getElementById("total"),
+      totalCard: document.getElementById("totalCard"),
+      roster: document.getElementById("roster"),
+      state: document.getElementById("state"),
+      windowEl: document.getElementById("window"),
+      clock: document.getElementById("clock"),
+      refresh: document.getElementById("refresh"),
+    };
+
+    var WEEK_LABELS = ["日", "一", "二", "三", "四", "五", "六"];
+
+    // 把 Date 格式化成 API 接受的 "yyyy-MM-dd HH:mm"(本地時間 / 台灣時區)
+    function fmt(d) {
+      var p = function (n) { return String(n).padStart(2, "0"); };
+      return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
+        " " + p(d.getHours()) + ":" + p(d.getMinutes());
+    }
+
+    function shortWindow(startText, endText) {
+      // "2026-07-06 10:00" -> "7/6 10:00"
+      var s = function (t) {
+        var m = String(t).match(/^\d{4}-(\d{2})-(\d{2})\s+(\d{2}:\d{2})/);
+        return m ? (Number(m[1]) + "/" + Number(m[2]) + " " + m[3]) : t;
+      };
+      return s(startText) + " ～ " + s(endText);
+    }
+
+    // 決定要查的時間區間:優先用網址參數,否則預設「當週」報名視窗
+    function resolveParams() {
+      var qs = new URLSearchParams(location.search);
+      var params = { action: "stats" };
+      if (qs.get("startTime") || qs.get("endTime")) {
+        if (qs.get("startTime")) params.startTime = qs.get("startTime");
+        if (qs.get("endTime")) params.endTime = qs.get("endTime");
+      } else {
+        var range = currentWeekRange();
+        params.startTime = fmt(range.start);
+        params.endTime = fmt(range.end);
+      }
+      return params;
+    }
+
+    // 當週報名視窗:週二 10:00 ~ 週三 18:00(以本地時間 / 台灣時區計算)。
+    // 以「本週的週三」為錨點往回推週二,週一~週日打開都會對到同一週的那場球。
+    function currentWeekRange() {
+      var now = new Date();
+      var mondayIndex = (now.getDay() + 6) % 7; // 週一=0, 週二=1, 週三=2 ... 週日=6
+      var offsetToWed = 2 - mondayIndex;         // 到本週三的天數差(可正可負)
+
+      var wed = new Date(now);
+      wed.setDate(now.getDate() + offsetToWed);
+      wed.setHours(18, 0, 0, 0);
+
+      var tue = new Date(wed);
+      tue.setDate(wed.getDate() - 1);
+      tue.setHours(10, 0, 0, 0);
+
+      return { start: tue, end: wed };
+    }
+
+    // 顯示閘門:報名資訊只在「當週 週二 10:00 ~ 週三 22:00」之間顯示。
+    // 週二 10:00 前 → 尚未開始;週三 22:00 後 → 已結束(比資料視窗的週三 18:00
+    // 多留 4 小時,讓結束後仍看得到最終名單)。有帶網址參數則不套用閘門。
+    function displayGate() {
+      var qs = new URLSearchParams(location.search);
+      if (qs.get("startTime") || qs.get("endTime")) {
+        return { state: "open" };
+      }
+
+      var now = new Date();
+      var range = currentWeekRange();
+      var openAt = range.start;               // 週二 10:00
+      var closeAt = new Date(range.end);
+      closeAt.setHours(22, 0, 0, 0);          // 週三 22:00
+
+      if (now < openAt) {
+        return { state: "before", at: openAt };
+      }
+      if (now >= closeAt) {
+        return { state: "after", at: closeAt };
+      }
+      return { state: "open" };
+    }
+
+    // 更新頁面上的即時時間
+    function updateClock() {
+      var now = new Date();
+      var p = function (n) { return String(n).padStart(2, "0"); };
+      els.clock.textContent =
+        now.getFullYear() + "/" + p(now.getMonth() + 1) + "/" + p(now.getDate()) +
+        " (" + WEEK_LABELS[now.getDay()] + ") " +
+        p(now.getHours()) + ":" + p(now.getMinutes()) + ":" + p(now.getSeconds());
+    }
+
+    // ===== JSONP 讀取(繞過 GAS 的 CORS 限制)=====
+    var seq = 0;
+    function loadStats() {
+      seq += 1;
+      var cbName = "__stats_cb_" + seq;
+      var params = resolveParams();
+      params.callback = cbName;
+
+      var url = API_BASE + "?" + Object.keys(params).map(function (k) {
+        return encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
+      }).join("&");
+
+      setLoading();
+
+      var script = document.createElement("script");
+      var timer = setTimeout(function () {
+        cleanup();
+        showError("連線逾時,請稍後再試");
+      }, JSONP_TIMEOUT);
+
+      function cleanup() {
+        clearTimeout(timer);
+        delete window[cbName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        els.refresh.disabled = false;
+      }
+
+      window[cbName] = function (res) {
+        cleanup();
+        if (res && res.ok && res.data) {
+          render(res.data);
+        } else {
+          showError((res && res.error) ? res.error : "讀取失敗");
+        }
+      };
+
+      script.onerror = function () {
+        cleanup();
+        showError("無法連線到伺服器");
+      };
+
+      els.refresh.disabled = true;
+      script.src = url;
+      document.body.appendChild(script);
+    }
+
+    // ===== 畫面渲染 =====
+    function setLoading() {
+      els.roster.classList.add("hidden");
+      els.state.classList.remove("hidden");
+      els.state.innerHTML = '<div class="loader">🏀</div>正在讀取報名名單…';
+    }
+
+    function showError(msg) {
+      els.totalCard.classList.remove("hidden");
+      els.total.textContent = "–";
+      els.roster.classList.add("hidden");
+      els.state.classList.remove("hidden");
+      els.state.innerHTML = '<span class="big">😵‍💫</span>' + escapeHtml(msg);
+    }
+
+    // 閘門關閉時:隱藏人數卡與名單,只顯示狀態訊息,並不呼叫 API。
+    function showGateMessage(emoji, title, subtitle) {
+      els.totalCard.classList.add("hidden");
+      els.roster.classList.add("hidden");
+      els.state.classList.remove("hidden");
+      els.state.innerHTML =
+        '<span class="big">' + emoji + '</span>' +
+        '<strong>' + escapeHtml(title) + '</strong>' +
+        (subtitle ? '<br>' + escapeHtml(subtitle) : '');
+    }
+
+    function weekTime(d) {
+      var p = function (n) { return String(n).padStart(2, "0"); };
+      return (d.getMonth() + 1) + "/" + d.getDate() +
+        " (" + WEEK_LABELS[d.getDay()] + ") " + p(d.getHours()) + ":" + p(d.getMinutes());
+    }
+
+    // 進入點:先更新時鐘與閘門,開放時才讀取名單。
+    function refresh() {
+      updateClock();
+      var gate = displayGate();
+
+      if (gate.state === "before") {
+        els.windowEl.textContent = "報名尚未開放";
+        showGateMessage("⏳", "報名尚未開始", "報名開放時間:週二 10:00");
+        return;
+      }
+      if (gate.state === "after") {
+        els.windowEl.textContent = "本週報名已結束";
+        showGateMessage("🔒", "本週報名已結束", "下週二 10:00 再開放");
+        return;
+      }
+
+      loadStats();
+    }
+
+    function render(data) {
+      els.windowEl.textContent = shortWindow(data.startTime, data.endTime);
+      els.total.textContent = data.total;
+
+      var list = data.attendees || [];
+      if (list.length === 0) {
+        els.roster.classList.add("hidden");
+        els.state.classList.remove("hidden");
+        els.state.innerHTML = '<span class="big">🏀</span>這個時段還沒有人報名<br>快揪一波吧!';
+        return;
+      }
+
+      // 人數多的排前面
+      list = list.slice().sort(function (a, b) { return b.count - a.count; });
+
+      els.state.classList.add("hidden");
+      els.roster.classList.remove("hidden");
+      els.roster.innerHTML = "";
+
+      list.forEach(function (a, i) {
+        var li = document.createElement("li");
+        li.className = "row";
+        li.style.animationDelay = (i * 0.04) + "s";
+
+        var extra = a.count > 1 ? ' <small>(含 ' + (a.count - 1) + ' 位朋友)</small>' : "";
+        li.innerHTML =
+          '<div class="jersey"><span>' + (i + 1) + '</span></div>' +
+          '<div class="name">' + escapeHtml(a.displayName) + '</div>' +
+          '<div class="count">🏀 ×' + a.count + extra + '</div>';
+        els.roster.appendChild(li);
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+      });
+    }
+
+    els.refresh.addEventListener("click", refresh);
+
+    updateClock();
+    setInterval(updateClock, 1000);   // 時鐘每秒跳動
+    setInterval(refresh, 60000);      // 每分鐘重新評估閘門並更新名單
+    refresh();
+  </script>
+</body>
+</html>
