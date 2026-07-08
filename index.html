@@ -234,6 +234,62 @@
     .refresh:active { transform: scale(.97); filter: brightness(.95); }
     .refresh:disabled { opacity: .6; }
 
+    /* ===== 小群準則 ===== */
+    .rules {
+      background: var(--paper);
+      margin: 12px 16px 0;
+      border-radius: 18px;
+      padding: 18px 20px;
+      box-shadow: 0 10px 26px var(--shadow);
+    }
+    .rules h2 {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--ball-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .rules .intro {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #7a5a3a;
+      margin-bottom: 12px;
+    }
+    .rules ol {
+      list-style: none;
+      counter-reset: rule;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .rules li {
+      counter-increment: rule;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .rules li::before {
+      content: counter(rule);
+      flex: 0 0 24px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 900;
+      color: #fff;
+      background: linear-gradient(180deg, #ffb15e, var(--ball));
+    }
+    .rules li .text { flex: 1; padding-top: 2px; }
+    .rules li strong { color: var(--ball-dark); }
+
     footer {
       text-align: center;
       color: rgba(244, 233, 221, .65);
@@ -264,6 +320,16 @@
       <div class="loader">🏀</div>
       正在讀取報名名單…
     </div>
+
+    <section class="rules">
+      <h2>📋 籃球小群準則</h2>
+      <p class="intro">為了避免人數太多、大家體驗不好，設個人數上限（15 人）：</p>
+      <ol>
+        <li><span class="text">人數上限 <strong>15 人</strong></span></li>
+        <li><span class="text">以目前<strong>在職人員最優先</strong>，後面就以<strong>報名的時間</strong>為主</span></li>
+        <li><span class="text">如果人數達最大上限 15 人，比賽就<strong>以四分結算</strong></span></li>
+      </ol>
+    </section>
 
     <button class="refresh" id="refresh">🔄 重新整理</button>
     <footer>資料來源：LINE 籃球小幫手 · 只計算點擊報名</footer>
